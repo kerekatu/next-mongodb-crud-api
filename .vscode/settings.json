@@ -1,0 +1,9 @@
+{
+  "files.exclude": {
+    "node_modules": true,
+    ".next": true,
+    ".vscode": true,
+    "yarn.lock": true,
+    "package-lock.json": true
+  }
+}

@@ -1,16 +1,138 @@
-html,
-body {
-  padding: 0;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+*,
+*::before,
+*::after {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  padding: 0;
+  box-sizing: inherit;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-* {
+html {
+  font-size: 62.5%;
   box-sizing: border-box;
+}
+
+body {
+  font-size: 1.6rem;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.58;
+  background-color: #fff;
+}
+
+.jokes {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+.joke {
+  position: relative;
+  padding: 4rem;
+  background-color: #27ae60;
+  border-radius: 0.6rem;
+  box-shadow: 0 0.8rem 0.6rem -0.6rem rgba(0, 0, 0, 0.1);
+  color: #fff;
+  border: 1rem solid #2ecc71;
+}
+
+.joke h2 {
+  margin-bottom: 1rem;
+}
+
+.joke-description--active {
+  cursor: pointer;
+}
+
+.joke-description--active:hover {
+  opacity: 0.8;
+}
+
+.joke-bottom {
+  position: absolute;
+  bottom: -2.4rem;
+  right: 2rem;
+}
+
+.button--primary {
+  background-color: #f1c40f;
+  border: none;
+  padding: 1.5rem 2rem;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: #fff;
+  border-radius: 0.6rem;
+  cursor: pointer;
+}
+
+.button--primary.red {
+  background-color: #e74c3c;
+}
+
+.button--secondary {
+  display: inline-block;
+  background-color: #f1c40f;
+  border: none;
+  padding: 0.6rem 2rem;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 0.6rem;
+}
+
+.button--secondary:hover {
+  transform: scale(1.1);
+}
+
+.error {
+  color: #e74c3c;
+  background-color: #fff;
+  margin-top: 0.8rem;
+  align-self: flex-start;
+  padding: 0.4rem 1rem;
+  font-weight: 700;
+  border-radius: 0.6rem;
+  font-size: 1.4rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  background-color: #27ae60;
+  border: 1rem solid #2ecc71;
+  border-radius: 0.6rem;
+  box-shadow: 0 0.8rem 0.6rem -0.6rem rgba(0, 0, 0, 0.1);
+  padding: 4rem;
+  color: #fff;
+  gap: 2rem;
+}
+
+form > h1 {
+  text-align: center;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-container--alt {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-container--alt > label {
+  font-weight: 700;
+}
+
+.form-container > label {
+  margin-bottom: 0.8rem;
+  font-weight: 700;
+}
+
+.form-container > input {
+  padding: 1.2rem 1.5rem;
+  border: none;
+  border-radius: 0.6rem;
+  font-size: 1.6rem;
+  font-family: 'Inter', sans-serif;
 }

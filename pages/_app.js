@@ -1,7 +1,16 @@
 import '../styles/globals.css'
+import PropTypes from 'prop-types'
+import Layout from '@/layouts/Layout'
 
-function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+export default function MyApp({ Component, pageProps }) {
+  return (
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
+  )
 }
 
-export default MyApp
+MyApp.propTypes = {
+  Component: PropTypes.oneOfType([PropTypes.func, PropTypes.object]).isRequired,
+  pageProps: PropTypes.any
+}

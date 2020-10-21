@@ -1,32 +1,39 @@
-import { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
-import { useForm } from 'react-hook-form'
 import Card from '@/components/Card'
+import PropTypes from 'prop-types'
+import { useState, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/router'
 
-const Home = ({ jokesData }) => {
+const Joke = ({ jokeData }) => {
+  const { title, description, spoiler } = jokeData
+
+  const router = useRouter()
   const { handleSubmit, register, errors } = useForm()
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    spoiler: false
+    title,
+    description,
+    spoiler: spoiler || false
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isDeleted, setIsDeleted] = useState(false)
 
   useEffect(() => {
     const timer =
       isSubmitted &&
       setTimeout(() => {
         setIsSubmitted(false)
-        console.log('dupa')
-      }, 6000)
+        router.push('/')
+      }, 3000)
 
     return () => clearTimeout(timer)
   }, [isSubmitted])
 
-  const createJoke = async () => {
+  const editJoke = async () => {
+    const jokeId = router.query.id
+
     try {
-      return await fetch('http://localhost:3000/api/jokes', {
-        method: 'POST',
+      return await fetch(`http://localhost:3000/api/jokes/${jokeId}`, {
+        method: 'PUT',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
@@ -38,16 +45,26 @@ const Home = ({ jokesData }) => {
     }
   }
 
-  const handleFormSubmit = () => {
-    if (isSubmitted) return
+  const deleteJoke = async () => {
+    const jokeId = router.query.id
 
-    createJoke()
-    setIsSubmitted(true)
-    setFormData({
-      title: '',
-      description: '',
-      spoiler: false
-    })
+    try {
+      return await fetch(`http://localhost:3000/api/jokes/${jokeId}`, {
+        method: 'DELETE'
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleFormSubmit = () => {
+    if (!isDeleted) {
+      setIsSubmitted(true)
+      editJoke()
+    } else {
+      deleteJoke()
+      router.push('/')
+    }
   }
 
   const handleInputChange = (e) => {
@@ -60,8 +77,10 @@ const Home = ({ jokesData }) => {
 
   return (
     <div className="jokes">
+      <Card title={title} spoiler={spoiler} description={description} />
+
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <h1>Add Joke</h1>
+        <h1>Edit Joke</h1>
         <div className="form-container">
           <label htmlFor="title">Title</label>
           <input
@@ -118,39 +137,47 @@ const Home = ({ jokesData }) => {
         <button type="submit" className="button--primary">
           Submit
         </button>
-        {isSubmitted && <p>Thank you for submitting a joke</p>}
+        <button
+          className="button--primary red"
+          onClick={() => setIsDeleted(true)}
+        >
+          Delete
+        </button>
+        {isSubmitted && <p>Joke edited</p>}
       </form>
-      {jokesData.map((joke) => {
-        const { title, description, spoiler, _id } = joke
-
-        return (
-          <Card
-            title={title}
-            description={description}
-            id={_id}
-            spoiler={spoiler}
-            buttonOpen
-            key={_id}
-          />
-        )
-      })}
     </div>
   )
 }
 
-export const getStaticProps = async () => {
-  const response = await fetch('http://localhost:3000/api/jokes')
-  const jokesData = await response.json()
+export const getStaticPaths = async () => {
+  const response = await fetch(`http://localhost:3000/api/jokes`)
+  const results = await response.json()
+
+  const paths = results.data.map((result) => ({
+    params: {
+      id: result._id
+    }
+  }))
+
+  return {
+    paths,
+    fallback: true
+  }
+}
+
+export const getStaticProps = async ({ params }) => {
+  const response = await fetch(`http://localhost:3000/api/jokes/${params.id}`)
+  const jokeData = await response.json()
 
   return {
     props: {
-      jokesData: jokesData.data
+      jokeData: jokeData.data
     }
   }
 }
 
-Home.propTypes = {
-  jokesData: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired
+Joke.propTypes = {
+  jokeData: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired
 }
 
-export default Home
+export default Joke
