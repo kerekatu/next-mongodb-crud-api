@@ -1,21 +1,30 @@
 import Card from '@/components/Card'
-import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/router'
+import useSWR from 'swr'
 
-const Joke = ({ jokeData }) => {
-  const { title, description, spoiler } = jokeData
-
+const Joke = () => {
   const router = useRouter()
+  const { data: jokeData, error } = useSWR(`/api/jokes/${router.query.id}`)
   const { handleSubmit, register, errors } = useForm()
   const [formData, setFormData] = useState({
-    title,
-    description,
-    spoiler: spoiler || false
+    title: '',
+    description: '',
+    spoiler: false
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isDeleted, setIsDeleted] = useState(false)
+
+  useEffect(() => {
+    if (jokeData) {
+      setFormData({
+        title: jokeData.data.title,
+        description: jokeData.data.description,
+        spoiler: jokeData.data.spoiler || false
+      })
+    }
+  }, [jokeData])
 
   useEffect(() => {
     const timer =
@@ -75,9 +84,19 @@ const Joke = ({ jokeData }) => {
     })
   }
 
+  if (!jokeData) {
+    return <div>Loading...</div>
+  } else if (error) {
+    return <div>Something went wrong</div>
+  }
+
   return (
     <div className="jokes">
-      <Card title={title} spoiler={spoiler} description={description} />
+      <Card
+        title={jokeData.data.title}
+        spoiler={jokeData.data.spoiler}
+        description={jokeData.data.description}
+      />
 
       <form onSubmit={handleSubmit(handleFormSubmit)}>
         <h1>Edit Joke</h1>
@@ -147,37 +166,6 @@ const Joke = ({ jokeData }) => {
       </form>
     </div>
   )
-}
-
-export const getStaticPaths = async () => {
-  const response = await fetch(`http://localhost:3000/api/jokes`)
-  const results = await response.json()
-
-  const paths = results.data.map((result) => ({
-    params: {
-      id: result._id
-    }
-  }))
-
-  return {
-    paths,
-    fallback: true
-  }
-}
-
-export const getStaticProps = async ({ params }) => {
-  const response = await fetch(`http://localhost:3000/api/jokes/${params.id}`)
-  const jokeData = await response.json()
-
-  return {
-    props: {
-      jokeData: jokeData.data
-    }
-  }
-}
-
-Joke.propTypes = {
-  jokeData: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired
 }
 
 export default Joke

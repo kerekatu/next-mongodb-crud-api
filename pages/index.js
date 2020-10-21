@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
 import { useForm } from 'react-hook-form'
 import Card from '@/components/Card'
+import useSWR from 'swr'
 
-const Home = ({ jokesData }) => {
+const Home = () => {
+  const fetcher = (...args) => fetch(...args).then((res) => res.json())
   const { handleSubmit, register, errors } = useForm()
   const [formData, setFormData] = useState({
     title: '',
@@ -11,6 +12,7 @@ const Home = ({ jokesData }) => {
     spoiler: false
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const { data: jokesData, error } = useSWR('/api/jokes', fetcher)
 
   useEffect(() => {
     const timer =
@@ -56,6 +58,12 @@ const Home = ({ jokesData }) => {
       [e.target.name]: e.target.value,
       spoiler: e.target.checked
     })
+  }
+
+  if (!jokesData) {
+    return <div>Loading...</div>
+  } else if (error) {
+    return <div>Something went wrong</div>
   }
 
   return (
@@ -120,7 +128,7 @@ const Home = ({ jokesData }) => {
         </button>
         {isSubmitted && <p>Thank you for submitting a joke</p>}
       </form>
-      {jokesData.map((joke) => {
+      {jokesData.data.map((joke) => {
         const { title, description, spoiler, _id } = joke
 
         return (
@@ -136,21 +144,6 @@ const Home = ({ jokesData }) => {
       })}
     </div>
   )
-}
-
-export const getStaticProps = async () => {
-  const response = await fetch('http://localhost:3000/api/jokes')
-  const jokesData = await response.json()
-
-  return {
-    props: {
-      jokesData: jokesData.data
-    }
-  }
-}
-
-Home.propTypes = {
-  jokesData: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired
 }
 
 export default Home
